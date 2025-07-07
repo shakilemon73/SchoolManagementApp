@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "name": "school-management-system",
+  "builds": [
+    {
+      "src": "server/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["client/dist/**"]
+      }
+    },
+    {
+      "src": "client/dist/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/client/dist/$1"
+    }
+  ],
+  "env": {
+    "DATABASE_URL": "@database_url",
+    "SUPABASE_URL": "@supabase_url", 
+    "SUPABASE_ANON_KEY": "@supabase_anon_key",
+    "SESSION_SECRET": "@session_secret"
+  },
+  "functions": {
+    "server/index.ts": {
+      "maxDuration": 30
+    }
+  }
+}

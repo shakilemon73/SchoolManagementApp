@@ -1,0 +1,108 @@
+/* ID Card Styles */
+.id-card-container {
+  font-family: 'Arial', sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  page-break-inside: avoid;
+  margin: 0 auto;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Standard Template */
+.id-card-standard {
+  border-radius: 8px;
+}
+
+.id-card-standard .id-card-header {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+/* Modern Template */
+.id-card-modern {
+  border-radius: 12px;
+}
+
+.id-card-modern .id-card-header {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-dark) 100%);
+  color: white;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.id-card-modern .school-info h3,
+.id-card-modern .school-info p {
+  color: white;
+}
+
+.id-card-modern .photo-section .student-photo {
+  border-radius: 8px;
+  border: 2px solid white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.id-card-modern .blood-group {
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Simple Template */
+.id-card-simple {
+  border-radius: 0;
+  border: 1px solid #ddd;
+}
+
+.id-card-simple .id-card-header {
+  background: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+}
+
+.id-card-simple .student-photo {
+  border: 1px solid #ddd;
+}
+
+/* Detailed Template */
+.id-card-detailed {
+  border-radius: 8px;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23f0f0f0' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.id-card-detailed .id-card-header {
+  background-color: var(--primary-color);
+  color: white;
+  border-bottom: 2px solid var(--primary-color-dark);
+}
+
+.id-card-detailed .school-info h3,
+.id-card-detailed .school-info p {
+  color: white;
+}
+
+.id-card-detailed .student-photo {
+  border: 2px solid var(--primary-color);
+  border-radius: 4px;
+}
+
+.id-card-detailed .id-card-label {
+  border-bottom-left-radius: 8px;
+  background-color: var(--primary-color-dark);
+}
+
+/* Print styles */
+@media print {
+  .id-card-container {
+    box-shadow: none;
+    margin: 0;
+    page-break-inside: avoid;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  @page {
+    size: auto;
+    margin: 0;
+  }
+}

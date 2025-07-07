@@ -1,0 +1,31 @@
+{
+  "name": "school-management-system",
+  "description": "Complete school management application with Supabase",
+  "env": {
+    "SUPABASE_URL": {
+      "description": "Your Supabase project URL",
+      "required": true
+    },
+    "SUPABASE_ANON_KEY": {
+      "description": "Your Supabase anonymous key",
+      "required": true
+    },
+    "DATABASE_URL": {
+      "description": "Your Supabase database connection string",
+      "required": true
+    },
+    "SESSION_SECRET": {
+      "description": "Secret key for session management",
+      "generator": "secret"
+    }
+  },
+  "build": {
+    "commands": [
+      "npm install",
+      "npm run db:push"
+    ]
+  },
+  "run": {
+    "command": "npm start"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "timestamp": "2025-07-07T19:48:53.747Z",
+  "baseUrl": "http://localhost:5000",
+  "overallScore": "7/8",
+  "criticalFailures": 1,
+  "deploymentReady": false,
+  "results": [
+    {
+      "name": "Health Check",
+      "endpoint": "/api/health",
+      "status": 0,
+      "passed": false,
+      "critical": true,
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+    },
+    {
+      "name": "System Health",
+      "endpoint": "/api/system/health",
+      "status": 200,
+      "passed": true,
+      "critical": true,
+      "responseTime": "N/A",
+      "dataSize": 822
+    },
+    {
+      "name": "Dashboard Stats",
+      "endpoint": "/api/dashboard/stats?schoolId=1",
+      "status": 200,
+      "passed": true,
+      "critical": true,
+      "responseTime": "N/A",
+      "dataSize": 95
+    },
+    {
+      "name": "Document Templates",
+      "endpoint": "/api/documents/templates",
+      "status": 200,
+      "passed": true,
+      "critical": true,
+      "responseTime": "N/A",
+      "dataSize": 42132
+    },
+    {
+      "name": "Students API",
+      "endpoint": "/api/students?schoolId=1",
+      "status": 200,
+      "passed": true,
+      "critical": false,
+      "responseTime": "N/A",
+      "dataSize": 22920
+    },
+    {
+      "name": "Teachers API",
+      "endpoint": "/api/teachers?schoolId=1",
+      "status": 200,
+      "passed": true,
+      "critical": false,
+      "responseTime": "N/A",
+      "dataSize": 330
+    },
+    {
+      "name": "Library Books",
+      "endpoint": "/api/library/books?schoolId=1",
+      "status": 200,
+      "passed": true,
+      "critical": false,
+      "responseTime": "N/A",
+      "dataSize": 1649
+    },
+    {
+      "name": "Notifications",
+      "endpoint": "/api/notifications?schoolId=1",
+      "status": 200,
+      "passed": true,
+      "critical": false,
+      "responseTime": "N/A",
+      "dataSize": 5267
+    }
+  ]
+}

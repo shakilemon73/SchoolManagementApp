@@ -1,0 +1,140 @@
+/* Language-specific styles */
+
+/* RTL Support */
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+.rtl button,
+.rtl input,
+.rtl select,
+.rtl textarea {
+  text-align: right;
+}
+
+/* Language-specific font families */
+.font-arabic {
+  font-family: 'Noto Sans Arabic', 'Scheherazade New', Arial, sans-serif;
+}
+
+.font-bengali {
+  font-family: 'Noto Sans Bengali', 'Hind Siliguri', 'SolaimanLipi', sans-serif;
+}
+
+/* Flexbox direction adjustments for RTL layouts */
+.rtl .flex-row {
+  flex-direction: row-reverse;
+}
+
+.rtl .items-start {
+  align-items: flex-end;
+}
+
+.rtl .justify-start {
+  justify-content: flex-end;
+}
+
+.rtl .justify-end {
+  justify-content: flex-start;
+}
+
+/* RTL adjustments for margins and paddings */
+.rtl .ml-1, .rtl .ml-2, .rtl .ml-3, .rtl .ml-4, .rtl .ml-5 {
+  margin-left: 0;
+}
+
+.rtl .mr-1 {
+  margin-right: 0;
+  margin-left: 0.25rem;
+}
+
+.rtl .mr-2 {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+.rtl .mr-3 {
+  margin-right: 0;
+  margin-left: 0.75rem;
+}
+
+.rtl .mr-4 {
+  margin-right: 0;
+  margin-left: 1rem;
+}
+
+.rtl .pl-1, .rtl .pl-2, .rtl .pl-3, .rtl .pl-4, .rtl .pl-5 {
+  padding-left: 0;
+}
+
+.rtl .pr-1 {
+  padding-right: 0;
+  padding-left: 0.25rem;
+}
+
+.rtl .pr-2 {
+  padding-right: 0;
+  padding-left: 0.5rem;
+}
+
+.rtl .pr-3 {
+  padding-right: 0;
+  padding-left: 0.75rem;
+}
+
+.rtl .pr-4 {
+  padding-right: 0;
+  padding-left: 1rem;
+}
+
+/* Language-specific text size adjustments */
+.font-bengali {
+  font-size: 1.05em; /* Slightly larger for better readability */
+  line-height: 1.6;
+}
+
+.font-arabic {
+  font-size: 1.1em; /* Slightly larger for better readability */
+  line-height: 1.7;
+}
+
+/* Bidirectional text support */
+.bidi-override {
+  unicode-bidi: bidi-override;
+}
+
+/* Fixes for specific components in RTL layouts */
+.rtl .dropdown-menu {
+  left: auto;
+  right: 0;
+}
+
+.rtl .sidebar {
+  left: auto;
+  right: 0;
+  border-right: none;
+  border-left: 1px solid var(--border);
+}
+
+.rtl .sidebar-icon {
+  margin-right: 0;
+  margin-left: 0.75rem;
+}
+
+/* Font loading for improved performance */
+@font-face {
+  font-family: 'Hind Siliguri';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://fonts.googleapis.com/css2?family=Hind+Siliguri&display=swap');
+}
+
+@font-face {
+  font-family: 'Noto Sans Arabic';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic&display=swap');
+}
