@@ -125,9 +125,18 @@ export function MobileNav() {
       titleAr: "الأدوات الرقمية",
       icon: Wrench,
       color: "slate",
-      items: [
-        { path: "/tools", icon: Wrench, textEn: "Tool Manager", textBn: "টুল ম্যানেজার", textAr: "مدير الأدوات", badge: null }
-      ]
+      directLink: "/tools",
+      items: []
+    },
+    {
+      id: "credits",
+      titleEn: "Credits & Billing",
+      titleBn: "ক্রেডিট ও বিলিং",
+      titleAr: "الأرصدة والفوترة",
+      icon: CreditCard,
+      color: "emerald",
+      directLink: "/credits",
+      items: []
     },
     {
       id: "settings",

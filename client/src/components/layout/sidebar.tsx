@@ -161,14 +161,24 @@ export function Sidebar() {
     {
       id: "tools",
       titleEn: "Digital Tools",
-      titleBn: "ডিজিটাল টুলস",
+      titleBn: "ডিজিটাল টুলস", 
       titleAr: "الأدوات الرقمية",
       icon: Wrench,
       priority: "low",
       color: "slate",
-      items: [
-        { path: "/tools", icon: Wrench, textEn: "Tool Manager", textBn: "টুল ম্যানেজার", textAr: "مدير الأدوات", badge: null }
-      ]
+      directLink: "/tools",
+      items: []
+    },
+    {
+      id: "credits",
+      titleEn: "Credits & Billing",
+      titleBn: "ক্রেডিট ও বিলিং",
+      titleAr: "الأرصدة والفوترة",
+      icon: CreditCard,
+      priority: "medium",
+      color: "emerald",
+      directLink: "/credits",
+      items: []
     },
     {
       id: "settings",
@@ -195,7 +205,8 @@ export function Sidebar() {
       orange: active ? 'bg-orange-50 text-orange-700 border-orange-200' : 'hover:bg-orange-50 hover:text-orange-700',
       teal: active ? 'bg-teal-50 text-teal-700 border-teal-200' : 'hover:bg-teal-50 hover:text-teal-700',
       slate: active ? 'bg-slate-50 text-slate-700 border-slate-200' : 'hover:bg-slate-50 hover:text-slate-700',
-      gray: active ? 'bg-gray-50 text-gray-700 border-gray-200' : 'hover:bg-gray-50 hover:text-gray-700'
+      gray: active ? 'bg-gray-50 text-gray-700 border-gray-200' : 'hover:bg-gray-50 hover:text-gray-700',
+      emerald: active ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'hover:bg-emerald-50 hover:text-emerald-700'
     };
     return colors[color as keyof typeof colors] || colors.blue;
   };
