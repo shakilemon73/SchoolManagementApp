@@ -99,6 +99,7 @@ import { registerSupabaseSchoolAdmin } from "./supabase-school-admin";
 import { schoolSupabaseMiddleware, initializeAllSchoolClients } from "./school-supabase-middleware";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import serverless from "serverless-http";
 
 const app = express();
 
@@ -408,11 +409,15 @@ app.use((req, res, next) => {
 
   // Use environment port for production deployment or default to 5000
   const port = process.env.PORT || 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  if (app.get("env") !== "development") {
+    module.exports.handler = serverless(app);
+  } else {
+    server.listen({
+      port,
+      host: "127.0.0.1",
+      reusePort: true,
+    }, () => {
+      log(`serving on port ${port}`);
+    });
+  }
 })();
