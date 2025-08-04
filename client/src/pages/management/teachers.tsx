@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/table";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
+import { useTeachers, useCreateTeacher } from '@/hooks/use-supabase-data';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -93,43 +93,11 @@ export default function TeachersPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState<any>(null);
 
-  // Fetch teachers from database
-  const { data: teachersData = [], isLoading, error, refetch } = useQuery({
-    queryKey: ['/api/teachers'],
-    staleTime: 0,
-    gcTime: 0,
-  });
+  // Fetch teachers directly from Supabase (No Express server needed!)
+  const { data: teachersData = [], isLoading, error, refetch } = useTeachers(1);
 
-  // Fetch teacher stats
-  const { data: stats } = useQuery({
-    queryKey: ['/api/teachers/stats'],
-  });
-
-  // Create teacher mutation
-  const createTeacher = useMutation({
-    mutationFn: (teacherData: any) => 
-      apiRequest('/api/teachers', {
-        method: 'POST',
-        body: JSON.stringify(teacherData),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/teachers'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/teachers/stats'] });
-      toast({
-        title: "সফল হয়েছে!",
-        description: "নতুন শিক্ষক যোগ করা হয়েছে",
-      });
-      setIsAddDialogOpen(false);
-      form.reset();
-    },
-    onError: (error: any) => {
-      toast({
-        title: "ত্রুটি!",
-        description: "শিক্ষক যোগ করতে সমস্যা হয়েছে",
-        variant: "destructive",
-      });
-    },
-  });
+  // Create teacher mutation using direct Supabase
+  const createTeacher = useCreateTeacher();
 
   // Update teacher mutation
   const updateTeacher = useMutation({

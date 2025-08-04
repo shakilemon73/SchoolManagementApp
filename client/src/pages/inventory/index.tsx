@@ -16,7 +16,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
+import { useInventoryItems } from '@/hooks/use-supabase-data';
 import { 
   Search, 
   Package, 
@@ -117,11 +117,8 @@ export default function InventoryPage() {
     },
   });
 
-  // Real-time data queries with proper typing
-  const { data: items = [], isLoading: itemsLoading } = useQuery<any[]>({
-    queryKey: ['/api/inventory/items'],
-    refetchInterval: 30000, // Real-time updates every 30 seconds
-  });
+  // Real-time data queries directly from Supabase (No Express server needed!)
+  const { data: items = [], isLoading: itemsLoading } = useInventoryItems(1);
 
   const { data: stockMovements = [], isLoading: movementsLoading } = useQuery<any[]>({
     queryKey: ['/api/inventory/movements'],

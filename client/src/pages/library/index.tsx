@@ -16,7 +16,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
+import { useLibraryBooks, useCreateLibraryBook } from '@/hooks/use-supabase-data';
 import { 
   Search, 
   BookOpen, 
@@ -100,12 +100,11 @@ export default function LibraryPage() {
     },
   });
 
-  // Real-time data queries
-  const { data: books = [], isLoading: booksLoading } = useQuery({
-    queryKey: ['/api/library/books'],
-    refetchInterval: 30000, // Real-time updates every 30 seconds
-  });
+  // Real-time data queries directly from Supabase (No Express server needed!)
+  const { data: books = [], isLoading: booksLoading } = useLibraryBooks(1);
+  const { data: students = [] } = useStudents(1);
 
+  // Other complex library features still use API for now
   const { data: borrowedBooks = [], isLoading: borrowedLoading } = useQuery({
     queryKey: ['/api/library/borrowed'],
     refetchInterval: 30000,
@@ -114,10 +113,6 @@ export default function LibraryPage() {
   const { data: libraryStats = {}, isLoading: statsLoading, error: statsError } = useQuery({
     queryKey: ['/api/library/stats'],
     refetchInterval: 60000,
-  });
-
-  const { data: students = [] } = useQuery({
-    queryKey: ['/api/students'],
   });
 
   // Mutations for CRUD operations
