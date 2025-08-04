@@ -6,6 +6,12 @@ This project is a comprehensive, multi-tenant school management system designed 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+## EXPRESS SERVER ELIMINATION PROJECT (CRITICAL)
+**USER MANDATE**: Cannot stop until Express server count reaches 0
+**CURRENT STATUS**: 60% complete (29/48 routes eliminated)
+**REMAINING TARGET**: Eliminate 19 remaining Express routes to achieve 0 Express servers
+**COMMITMENT**: Continue systematic migration until complete Express server elimination
+
 ## System Architecture
 The system is built with a clear separation of concerns, employing modern web technologies for both frontend and backend.
 

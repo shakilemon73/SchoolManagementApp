@@ -17,6 +17,7 @@ import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLibraryBooks, useCreateLibraryBook } from '@/hooks/use-supabase-data';
+import { useLibraryBorrowedBooks, useLibraryStats, useLibraryBorrow, useLibraryReturn } from '@/hooks/use-complete-supabase-migration';
 import { 
   Search, 
   BookOpen, 
@@ -104,16 +105,9 @@ export default function LibraryPage() {
   const { data: books = [], isLoading: booksLoading } = useLibraryBooks(1);
   const { data: students = [] } = useStudents(1);
 
-  // Other complex library features still use API for now
-  const { data: borrowedBooks = [], isLoading: borrowedLoading } = useQuery({
-    queryKey: ['/api/library/borrowed'],
-    refetchInterval: 30000,
-  });
-
-  const { data: libraryStats = {}, isLoading: statsLoading, error: statsError } = useQuery({
-    queryKey: ['/api/library/stats'],
-    refetchInterval: 60000,
-  });
+  // Complete library system using Supabase Edge Functions (NO EXPRESS!)
+  const { data: borrowedBooks = [], isLoading: borrowedLoading } = useLibraryBorrowedBooks();
+  const { data: libraryStats = {}, isLoading: statsLoading, error: statsError } = useLibraryStats();
 
   // Mutations for CRUD operations
   const addBookMutation = useMutation({

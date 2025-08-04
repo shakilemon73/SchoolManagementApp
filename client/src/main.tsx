@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
+import "./lib/force-supabase-only"; // FORCE SUPABASE-ONLY MODE - NO EXPRESS CALLS!
 
 // Import Material Icons
 const linkElement = document.createElement('link');

@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
+import { setupRoutes } from "./routes";
 import { registerDeveloperPortalRoutes } from "./developer-portal-routes";
 import { registerAdminRoutes } from "./admin-routes";
 import { registerAdmitCardRoutes } from "./admit-card-routes";
@@ -285,7 +285,7 @@ app.use((req, res, next) => {
   registerSupabaseAcademicTermsRoutes(app);
   registerSupabaseSchoolSettingsRoutes(app);
   
-  const server = await registerRoutes(app);
+  const server = await setupRoutes(app);
   
   // Register Supabase Document Dashboard (before authentication middleware)
   registerSupabaseDocumentDashboard(app);

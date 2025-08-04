@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabaseDirectAPI } from '../lib/supabase-direct';
+import { supabaseCompleteAPI } from '../lib/supabase-complete-replacement';
 import { useToast } from './use-toast';
 
 // Custom hooks for direct Supabase operations replacing Express API calls
@@ -141,7 +142,7 @@ export const useInventoryItems = (schoolId: number = 1) => {
 export const useCalendarEvents = (schoolId: number = 1) => {
   return useQuery({
     queryKey: ['calendar-events', schoolId],
-    queryFn: () => supabaseDirectAPI.calendar.getEvents(schoolId),
+    queryFn: () => supabaseCompleteAPI.calendar.getEvents(schoolId),
     staleTime: 2 * 60 * 1000, // 2 minutes for more frequent updates
   });
 };
@@ -157,8 +158,9 @@ export const useNotifications = (schoolId: number = 1) => {
 export const useDashboardStats = (schoolId: number = 1) => {
   return useQuery({
     queryKey: ['dashboard-stats', schoolId],
-    queryFn: () => supabaseDirectAPI.dashboard.getStats(schoolId),
+    queryFn: () => supabaseCompleteAPI.dashboard.getStats(schoolId),
     staleTime: 5 * 60 * 1000,
+    retry: 1, // Don't retry Express calls
   });
 };
 
