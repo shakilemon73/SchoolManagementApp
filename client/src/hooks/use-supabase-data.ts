@@ -1,188 +1,401 @@
+import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabaseDirectAPI } from '../lib/supabase-direct';
-import { supabaseCompleteAPI } from '../lib/supabase-complete-replacement';
-import { useToast } from './use-toast';
+import { supabaseService } from '../../../shared/supabase-service';
+import type {
+  User, InsertUser,
+  Student, InsertStudent,
+  Teacher, InsertTeacher,
+  LibraryBook, InsertLibraryBook,
+  Notification, InsertNotification,
+  Event, InsertEvent
+} from '../../../shared/consolidated-schema';
 
-// Custom hooks for direct Supabase operations replacing Express API calls
+// ============================================================================
+// AUTHENTICATION HOOKS
+// ============================================================================
 
-export const useStudents = (schoolId: number = 1) => {
-  return useQuery({
-    queryKey: ['students', schoolId],
-    queryFn: () => supabaseDirectAPI.students.getAll(schoolId),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+export function useAuth() {
+  const queryClient = useQueryClient();
+
+  const signInMutation = useMutation({
+    mutationFn: ({ email, password }: { email: string; password: string }) =>
+      supabaseService.signIn(email, password),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['auth'] });
+    },
   });
-};
 
-export const useStudent = (id: number) => {
+  const signOutMutation = useMutation({
+    mutationFn: () => supabaseService.signOut(),
+    onSuccess: () => {
+      queryClient.clear();
+    },
+  });
+
+  const { data: user, isLoading } = useQuery({
+    queryKey: ['auth', 'user'],
+    queryFn: () => supabaseService.getCurrentUser(),
+    retry: false,
+  });
+
+  return {
+    user,
+    isLoading,
+    isAuthenticated: !!user,
+    signIn: signInMutation.mutateAsync,
+    signOut: signOutMutation.mutateAsync,
+    isSigningIn: signInMutation.isPending,
+    isSigningOut: signOutMutation.isPending,
+  };
+}
+
+// ============================================================================
+// USER MANAGEMENT HOOKS
+// ============================================================================
+
+export function useUsers(schoolId?: number) {
   return useQuery({
-    queryKey: ['student', id],
-    queryFn: () => supabaseDirectAPI.students.getById(id),
+    queryKey: ['users', schoolId],
+    queryFn: () => supabaseService.getUsers(schoolId),
+    enabled: !!schoolId,
+  });
+}
+
+export function useUser(id: number) {
+  return useQuery({
+    queryKey: ['users', id],
+    queryFn: () => supabaseService.getUserById(id),
     enabled: !!id,
   });
-};
+}
 
-export const useCreateStudent = () => {
+export function useCreateUser() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   return useMutation({
-    mutationFn: supabaseDirectAPI.students.create,
+    mutationFn: (user: InsertUser) => supabaseService.createUser(user),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
-      toast({
-        title: "Success",
-        description: "Student created successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create student",
-        variant: "destructive",
-      });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.setQueryData(['users', data.id], data);
     },
   });
-};
+}
 
-export const useUpdateStudent = () => {
+export function useUpdateUser() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   return useMutation({
-    mutationFn: ({ id, updates }: { id: number; updates: any }) =>
-      supabaseDirectAPI.students.update(id, updates),
+    mutationFn: ({ id, updates }: { id: number; updates: Partial<InsertUser> }) =>
+      supabaseService.updateUser(id, updates),
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
-      queryClient.invalidateQueries({ queryKey: ['student', data.id] });
-      toast({
-        title: "Success",
-        description: "Student updated successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update student",
-        variant: "destructive",
-      });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.setQueryData(['users', data.id], data);
     },
   });
-};
+}
 
-export const useTeachers = (schoolId: number = 1) => {
+// ============================================================================
+// STUDENT MANAGEMENT HOOKS
+// ============================================================================
+
+export function useStudents(
+  schoolId: number,
+  filters?: { class?: string; section?: string; status?: string }
+) {
+  return useQuery({
+    queryKey: ['students', schoolId, filters],
+    queryFn: () => supabaseService.getStudents(schoolId, filters),
+    enabled: !!schoolId,
+  });
+}
+
+export function useStudent(id: number) {
+  return useQuery({
+    queryKey: ['students', id],
+    queryFn: () => supabaseService.getStudentById(id),
+    enabled: !!id,
+  });
+}
+
+export function useCreateStudent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (student: InsertStudent) => supabaseService.createStudent(student),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      queryClient.setQueryData(['students', data.id], data);
+    },
+  });
+}
+
+export function useUpdateStudent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, updates }: { id: number; updates: Partial<InsertStudent> }) =>
+      supabaseService.updateStudent(id, updates),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      queryClient.setQueryData(['students', data.id], data);
+    },
+  });
+}
+
+// ============================================================================
+// TEACHER MANAGEMENT HOOKS
+// ============================================================================
+
+export function useTeachers(schoolId: number) {
   return useQuery({
     queryKey: ['teachers', schoolId],
-    queryFn: () => supabaseDirectAPI.teachers.getAll(schoolId),
-    staleTime: 5 * 60 * 1000,
+    queryFn: () => supabaseService.getTeachers(schoolId),
+    enabled: !!schoolId,
   });
-};
+}
 
-export const useCreateTeacher = () => {
+export function useCreateTeacher() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   return useMutation({
-    mutationFn: supabaseDirectAPI.teachers.create,
-    onSuccess: () => {
+    mutationFn: (teacher: InsertTeacher) => supabaseService.createTeacher(teacher),
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['teachers'] });
-      toast({
-        title: "Success",
-        description: "Teacher created successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create teacher",
-        variant: "destructive",
-      });
+      queryClient.setQueryData(['teachers', data.id], data);
     },
   });
-};
+}
 
-export const useLibraryBooks = (schoolId: number = 1) => {
+// ============================================================================
+// LIBRARY MANAGEMENT HOOKS
+// ============================================================================
+
+export function useLibraryBooks(
+  schoolId: number,
+  filters?: { category?: string; available?: boolean; search?: string }
+) {
   return useQuery({
-    queryKey: ['library-books', schoolId],
-    queryFn: () => supabaseDirectAPI.library.getBooks(schoolId),
-    staleTime: 5 * 60 * 1000,
+    queryKey: ['library-books', schoolId, filters],
+    queryFn: () => supabaseService.getLibraryBooks(schoolId, filters),
+    enabled: !!schoolId,
   });
-};
+}
 
-export const useCreateLibraryBook = () => {
+export function useCreateLibraryBook() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   return useMutation({
-    mutationFn: supabaseDirectAPI.library.addBook,
+    mutationFn: (book: InsertLibraryBook) => supabaseService.createLibraryBook(book),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['library-books'] });
-      toast({
-        title: "Success",
-        description: "Book added successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to add book",
-        variant: "destructive",
-      });
     },
   });
-};
+}
 
-export const useInventoryItems = (schoolId: number = 1) => {
-  return useQuery({
-    queryKey: ['inventory-items', schoolId],
-    queryFn: () => supabaseDirectAPI.inventory.getItems(schoolId),
-    staleTime: 5 * 60 * 1000,
-  });
-};
-
-export const useCalendarEvents = (schoolId: number = 1) => {
-  return useQuery({
-    queryKey: ['calendar-events', schoolId],
-    queryFn: () => supabaseCompleteAPI.calendar.getEvents(schoolId),
-    staleTime: 2 * 60 * 1000, // 2 minutes for more frequent updates
-  });
-};
-
-export const useNotifications = (schoolId: number = 1) => {
-  return useQuery({
-    queryKey: ['notifications', schoolId],
-    queryFn: () => supabaseDirectAPI.notifications.getAll(schoolId),
-    staleTime: 1 * 60 * 1000, // 1 minute for real-time feel
-  });
-};
-
-export const useDashboardStats = (schoolId: number = 1) => {
-  return useQuery({
-    queryKey: ['dashboard-stats', schoolId],
-    queryFn: () => supabaseCompleteAPI.dashboard.getStats(schoolId),
-    staleTime: 5 * 60 * 1000,
-    retry: 1, // Don't retry Express calls
-  });
-};
-
-export const useCreateNotification = () => {
+export function useBorrowBook() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   return useMutation({
-    mutationFn: supabaseDirectAPI.notifications.create,
+    mutationFn: ({
+      bookId,
+      studentId,
+      dueDate,
+      schoolId,
+    }: {
+      bookId: number;
+      studentId: number;
+      dueDate: string;
+      schoolId: number;
+    }) => supabaseService.borrowBook(bookId, studentId, dueDate, schoolId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      toast({
-        title: "Success",
-        description: "Notification sent successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send notification",
-        variant: "destructive",
-      });
+      queryClient.invalidateQueries({ queryKey: ['library-books'] });
+      queryClient.invalidateQueries({ queryKey: ['library-borrowed-books'] });
     },
   });
-};
+}
+
+// ============================================================================
+// NOTIFICATION HOOKS
+// ============================================================================
+
+export function useNotifications(schoolId: number, recipientId?: number) {
+  return useQuery({
+    queryKey: ['notifications', schoolId, recipientId],
+    queryFn: () => supabaseService.getNotifications(schoolId, recipientId),
+    enabled: !!schoolId,
+  });
+}
+
+export function useCreateNotification() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (notification: InsertNotification) =>
+      supabaseService.createNotification(notification),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+}
+
+export function useMarkNotificationAsRead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, userId }: { id: number; userId: number }) =>
+      supabaseService.markNotificationAsRead(id, userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+}
+
+// ============================================================================
+// DASHBOARD HOOKS
+// ============================================================================
+
+export function useDashboardStats(schoolId: number) {
+  return useQuery({
+    queryKey: ['dashboard-stats', schoolId],
+    queryFn: () => supabaseService.getDashboardStats(schoolId),
+    enabled: !!schoolId,
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+  });
+}
+
+// ============================================================================
+// REAL-TIME HOOKS
+// ============================================================================
+
+export function useRealtimeNotifications(
+  schoolId: number,
+  onNotification: (notification: any) => void
+) {
+  const queryClient = useQueryClient();
+
+  React.useEffect(() => {
+    if (!schoolId) return;
+
+    const subscription = supabaseService.subscribeToNotifications(
+      schoolId,
+      (payload) => {
+        onNotification(payload);
+        queryClient.invalidateQueries({ queryKey: ['notifications', schoolId] });
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [schoolId, onNotification, queryClient]);
+}
+
+export function useRealtimeAttendance(
+  schoolId: number,
+  onAttendanceUpdate: (attendance: any) => void
+) {
+  const queryClient = useQueryClient();
+
+  React.useEffect(() => {
+    if (!schoolId) return;
+
+    const subscription = supabaseService.subscribeToAttendance(
+      schoolId,
+      (payload) => {
+        onAttendanceUpdate(payload);
+        queryClient.invalidateQueries({ queryKey: ['attendance', schoolId] });
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [schoolId, onAttendanceUpdate, queryClient]);
+}
+
+// ============================================================================
+// INVENTORY MANAGEMENT HOOKS
+// ============================================================================
+
+export function useInventoryItems(schoolId: number) {
+  return useQuery({
+    queryKey: ['inventory-items', schoolId],
+    queryFn: async () => {
+      // Direct Supabase call for inventory items
+      const { data, error } = await supabaseService.client
+        .from('inventory_items')
+        .select('*')
+        .eq('school_id', schoolId)
+        .order('name');
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!schoolId,
+  });
+}
+
+export function useCreateInventoryItem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (item: any) => {
+      const { data, error } = await supabaseService.client
+        .from('inventory_items')
+        .insert(item)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['inventory-items'] });
+    },
+  });
+}
+
+// ============================================================================
+// FILE UPLOAD HOOKS
+// ============================================================================
+
+export function useFileUpload() {
+  return useMutation({
+    mutationFn: ({
+      bucket,
+      path,
+      file,
+    }: {
+      bucket: string;
+      path: string;
+      file: File;
+    }) => supabaseService.uploadFile(bucket, path, file),
+  });
+}
+
+// ============================================================================
+// OPTIMISTIC UPDATE HELPERS
+// ============================================================================
+
+export function useOptimisticUpdate<T>(queryKey: any[], updateFn: (old: T[], newItem: T) => T[]) {
+  const queryClient = useQueryClient();
+
+  return (newItem: T) => {
+    queryClient.setQueryData(queryKey, (old: T[] = []) => updateFn(old, newItem));
+  };
+}
+
+// ============================================================================
+// ERROR HANDLING
+// ============================================================================
+
+export function useSupabaseError() {
+  return (error: any) => {
+    console.error('Supabase operation failed:', error);
+    
+    // You can add toast notifications here
+    // toast.error(error.message || 'An error occurred');
+    
+    return error;
+  };
+}

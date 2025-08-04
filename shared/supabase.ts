@@ -93,7 +93,7 @@ function initializeSupabaseClient() {
 }
 
 // Export a proxy that lazily initializes the client
-export const supabase = new Proxy({}, {
+export const supabase = new Proxy({} as any, {
   get(target, prop) {
     const client = initializeSupabaseClient();
     return client[prop];
@@ -104,7 +104,7 @@ export const supabase = new Proxy({}, {
 export const supabaseFeatures = {
   // Real-time attendance updates
   subscribeToAttendance: (callback: (payload: any) => void) => {
-    return supabase
+    return (supabase as any)
       .channel('attendance_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, callback)
       .subscribe()
@@ -112,7 +112,7 @@ export const supabaseFeatures = {
 
   // Real-time notifications for parents and teachers
   subscribeToNotifications: (userId: number, callback: (payload: any) => void) => {
-    return supabase
+    return (supabase as any)
       .channel('notifications')
       .on('postgres_changes', { 
         event: '*', 
@@ -128,7 +128,7 @@ export const supabaseFeatures = {
     const fileExt = file.name.split('.').pop()
     const fileName = `${folder}/${studentId}/${Date.now()}.${fileExt}`
     
-    const { data, error } = await supabase.storage
+    const { data, error } = await (supabase as any).storage
       .from('school-files')
       .upload(fileName, file)
     
@@ -138,7 +138,7 @@ export const supabaseFeatures = {
 
   // Get public URL for uploaded files
   getFileUrl: (path: string) => {
-    const { data } = supabase.storage
+    const { data } = (supabase as any).storage
       .from('school-files')
       .getPublicUrl(path)
     return data.publicUrl
