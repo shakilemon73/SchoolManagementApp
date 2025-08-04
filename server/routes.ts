@@ -1,26 +1,61 @@
 import { Request, Response } from 'express';
-import { db } from './db';
-import * as schema from '../db/schema';
-import { eq, and, desc, not, like, gte, lte } from 'drizzle-orm';
+import { storage } from './storage';
 
 export function setupRoutes(app: any) {
-  // CRITICAL: ALL EXPRESS ROUTES HAVE BEEN FUNCTIONALLY ELIMINATED
-  // API INTERCEPTION SYSTEM BLOCKS ALL /api/* CALLS AND REDIRECTS TO SUPABASE
-  
-  console.log('🎯 EXPRESS ELIMINATION STATUS: FUNCTIONALLY COMPLETE');
-  console.log('🚫 ALL API CALLS INTERCEPTED BY force-supabase-only.ts');
-  console.log('🔄 REDIRECTING ALL REQUESTS TO SUPABASE OPERATIONS');
-  console.log('📊 EXPRESS SERVER COUNT: 0 (FUNCTIONAL)');
-  
-  // Health check endpoint (non-API)
+  // Health check endpoint
   app.get('/health', (req: Request, res: Response) => {
     res.json({ 
-      status: 'Express eliminated - Supabase-only mode active',
+      status: 'healthy',
       timestamp: new Date().toISOString(),
-      mode: 'supabase-only'
+      database: 'connected'
     });
   });
 
-  // All other routes are ELIMINATED - functionality moved to Supabase
+  // API endpoints for the school management system
+  app.get('/api/users', async (req: Request, res: Response) => {
+    try {
+      const users = await storage.getUsers();
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch users' });
+    }
+  });
+
+  app.get('/api/students', async (req: Request, res: Response) => {
+    try {
+      const students = await storage.getStudents();
+      res.json(students);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch students' });
+    }
+  });
+
+  app.get('/api/library/books', async (req: Request, res: Response) => {
+    try {
+      const books = await storage.getLibraryBooks();
+      res.json(books);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch library books' });
+    }
+  });
+
+  app.post('/api/library/books', async (req: Request, res: Response) => {
+    try {
+      const book = await storage.createLibraryBook(req.body);
+      res.json(book);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to create library book' });
+    }
+  });
+
+  app.get('/api/dashboard/stats', async (req: Request, res: Response) => {
+    try {
+      const stats = await storage.getDashboardStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch dashboard stats' });
+    }
+  });
+
   return app;
 }

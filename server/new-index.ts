@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { setupVite, serveStatic, log } from "./vite";
-import { setupRoutes } from "./routes";
+import { storage } from "./storage";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -12,6 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Setup API routes
+import { setupRoutes } from "./routes";
 setupRoutes(app);
 
 // Setup Vite dev server or serve static files
