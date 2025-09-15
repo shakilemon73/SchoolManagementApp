@@ -13,11 +13,11 @@ import type {
 } from './consolidated-schema';
 
 // Supabase client configuration with fallbacks
-const supabaseUrl = (typeof import !== 'undefined' && import.meta?.env?.VITE_SUPABASE_URL) || 
+const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta?.env?.VITE_SUPABASE_URL) || 
                     (typeof process !== 'undefined' && process.env?.VITE_SUPABASE_URL) ||
                     'https://vmnmoiaxsahkdmnvrcrg.supabase.co';
 
-const supabaseKey = (typeof import !== 'undefined' && import.meta?.env?.VITE_SUPABASE_ANON_KEY) || 
+const supabaseKey = (typeof import.meta !== 'undefined' && import.meta?.env?.VITE_SUPABASE_ANON_KEY) || 
                     (typeof process !== 'undefined' && process.env?.VITE_SUPABASE_ANON_KEY) ||
                     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtbm1vaWF4c2Foa2RtbnZyY3JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg0ODMwNjMsImV4cCI6MjA2NDA1OTA2M30.Zx6rBQjgdGge2Y3OedqECwXY3fosC-7mPPrWwdkpEb4';
 
