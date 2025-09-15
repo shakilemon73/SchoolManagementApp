@@ -4,13 +4,10 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-  "dev": "vite",
-  "start": "vite preview",
-    "start": "tsx server/index.ts",
-    "check": "tsc",
-    "db:seed": "tsx db/seed.ts",
-    "db:migrate": "tsx server/migrate-to-supabase.ts",
-    "setup:supabase": "node setup-permanent-supabase.js"
+    "dev": "vite",
+    "build": "vite build",
+    "start": "vite preview",
+    "check": "tsc"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.37.0",
