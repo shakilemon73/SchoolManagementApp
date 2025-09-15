@@ -13,7 +13,7 @@ export default defineConfig({
     hmr: {
       clientPort: 443,
     },
-    allowedHosts: "88ba0f1e-93fb-46d2-a7cf-708c95856d51-00-21fnaonggpc5r.spock.replit.dev",
+    allowedHosts: true,  // ← THIS FIXES THE ISSUE
   },
   resolve: {
     alias: {
