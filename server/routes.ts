@@ -57,5 +57,20 @@ export function setupRoutes(app: any) {
     }
   });
 
+  app.get('/api/user', async (req: Request, res: Response) => {
+    try {
+      // Return a mock user for now since we're using Supabase auth
+      const user = {
+        id: '1',
+        email: 'user@example.com',
+        name: 'Test User',
+        role: 'admin'
+      };
+      res.json(user);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch user' });
+    }
+  });
+
   return app;
 }

@@ -114,7 +114,13 @@ export async function apiRequest(
       }
       
       case 'user': {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) {
+          return new Response(JSON.stringify({ error: error.message }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
         return new Response(JSON.stringify(user), {
           status: 200,
           headers: { 'Content-Type': 'application/json' }
