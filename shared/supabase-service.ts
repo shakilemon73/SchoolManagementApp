@@ -38,15 +38,15 @@ export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey, {
 // ============================================================================
 
 export class SupabaseService {
-  private client: SupabaseClient;
-  
+  private _client: SupabaseClient;
+
   constructor(client: SupabaseClient) {
-    this.client = client;
+    this._client = client;
   }
 
   // Expose client for direct access when needed
   get client() {
-    return this.client;
+    return this._client;
   }
 
   // ============================================================================
@@ -54,41 +54,41 @@ export class SupabaseService {
   // ============================================================================
 
   async signUp(email: string, password: string, userData: Partial<InsertUser>) {
-    const { data, error } = await this.client.auth.signUp({
+    const { data, error } = await this._client.auth.signUp({
       email,
       password,
       options: {
         data: userData
       }
     });
-    
+
     if (error) throw error;
     return data;
   }
 
   async signIn(email: string, password: string) {
-    const { data, error } = await this.client.auth.signInWithPassword({
+    const { data, error } = await this._client.auth.signInWithPassword({
       email,
       password
     });
-    
+
     if (error) throw error;
     return data;
   }
 
   async signOut() {
-    const { error } = await this.client.auth.signOut();
+    const { error } = await this._client.auth.signOut();
     if (error) throw error;
   }
 
   async getCurrentUser() {
-    const { data: { user }, error } = await this.client.auth.getUser();
+    const { data: { user }, error } = await this._client.auth.getUser();
     if (error) throw error;
     return user;
   }
 
   onAuthStateChange(callback: (event: string, session: any) => void) {
-    return this.client.auth.onAuthStateChange(callback);
+    return this._client.auth.onAuthStateChange(callback);
   }
 
   // ============================================================================
@@ -96,52 +96,52 @@ export class SupabaseService {
   // ============================================================================
 
   async getUsers(schoolId?: number): Promise<User[]> {
-    let query = this.client.from('users').select(`
+    let query = this._client.from('users').select(`
       *, 
       school:schools(name, name_bn),
       student:students(*),
       teacher:teachers(*)
     `);
-    
+
     if (schoolId) {
       query = query.eq('school_id', schoolId);
     }
-    
+
     const { data, error } = await query;
     if (error) throw error;
     return data || [];
   }
 
   async getUserById(id: number): Promise<User | null> {
-    const { data, error } = await this.client
+    const { data, error } = await this._client
       .from('users')
       .select('*, school:schools(*), student:students(*), teacher:teachers(*)')
       .eq('id', id)
       .single();
-    
+
     if (error && error.code !== 'PGRST116') throw error;
     return data;
   }
 
   async createUser(user: InsertUser): Promise<User> {
-    const { data, error } = await this.client
+    const { data, error } = await this._client
       .from('users')
       .insert(user)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   }
 
   async updateUser(id: number, updates: Partial<InsertUser>): Promise<User> {
-    const { data, error } = await this.client
+    const { data, error } = await this._client
       .from('users')
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', id)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   }
@@ -155,7 +155,7 @@ export class SupabaseService {
     section?: string;
     status?: string;
   }): Promise<Student[]> {
-    let query = this.client
+    let query = this._client
       .from('students')
       .select(`
         *, 
@@ -163,7 +163,7 @@ export class SupabaseService {
         school:schools(name, name_bn)
       `)
       .eq('school_id', schoolId);
-    
+
     if (filters?.class) {
       query = query.eq('class', filters.class);
     }
@@ -173,14 +173,14 @@ export class SupabaseService {
     if (filters?.status) {
       query = query.eq('status', filters.status);
     }
-    
+
     const { data, error } = await query.order('name');
     if (error) throw error;
     return data || [];
   }
 
   async getStudentById(id: number): Promise<Student | null> {
-    const { data, error } = await this.client
+    const { data, error } = await this._client
       .from('students')
       .select(`
         *, 
@@ -191,30 +191,30 @@ export class SupabaseService {
       `)
       .eq('id', id)
       .single();
-    
+
     if (error && error.code !== 'PGRST116') throw error;
     return data;
   }
 
   async createStudent(student: InsertStudent): Promise<Student> {
-    const { data, error } = await this.client
+    const { data, error } = await this._client
       .from('students')
       .insert(student)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   }
 
   async updateStudent(id: number, updates: Partial<InsertStudent>): Promise<Student> {
-    const { data, error } = await this.client
+    const { data, error } = await this._client
       .from('students')
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', id)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   }
@@ -224,7 +224,7 @@ export class SupabaseService {
   // ============================================================================
 
   async getTeachers(schoolId: number): Promise<Teacher[]> {
-    const { data, error } = await this.client
+    const { data, error } = await this._client
       .from('teachers')
       .select(`
         *, 
@@ -233,18 +233,18 @@ export class SupabaseService {
       `)
       .eq('school_id', schoolId)
       .order('user(name)');
-    
+
     if (error) throw error;
     return data || [];
   }
 
   async createTeacher(teacher: InsertTeacher): Promise<Teacher> {
-    const { data, error } = await this.client
+    const { data, error } = await this._client
       .from('teachers')
       .insert(teacher)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   }
@@ -258,11 +258,11 @@ export class SupabaseService {
     available?: boolean;
     search?: string;
   }): Promise<LibraryBook[]> {
-    let query = this.client
+    let query = this._client
       .from('library_books')
       .select('*')
       .eq('school_id', schoolId);
-    
+
     if (filters?.category) {
       query = query.eq('category', filters.category);
     }
@@ -272,26 +272,26 @@ export class SupabaseService {
     if (filters?.search) {
       query = query.or(`title.ilike.%${filters.search}%,author.ilike.%${filters.search}%`);
     }
-    
+
     const { data, error } = await query.order('title');
     if (error) throw error;
     return data || [];
   }
 
   async createLibraryBook(book: InsertLibraryBook): Promise<LibraryBook> {
-    const { data, error } = await this.client
+    const { data, error } = await this._client
       .from('library_books')
       .insert(book)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   }
 
   async borrowBook(bookId: number, studentId: number, dueDate: string, schoolId: number) {
     // Start transaction
-    const { error: borrowError } = await this.client
+    const { error: borrowError } = await this._client
       .from('library_borrowed_books')
       .insert({
         book_id: bookId,
@@ -300,17 +300,17 @@ export class SupabaseService {
         school_id: schoolId,
         status: 'borrowed'
       });
-    
+
     if (borrowError) throw borrowError;
 
     // Update available copies
-    const { error: updateError } = await this.client
+    const { error: updateError } = await this._client
       .from('library_books')
       .update({ 
-        available_copies: this.client.raw('available_copies - 1') 
+        available_copies: this._client.raw('available_copies - 1') 
       })
       .eq('id', bookId);
-    
+
     if (updateError) throw updateError;
   }
 
@@ -319,42 +319,42 @@ export class SupabaseService {
   // ============================================================================
 
   async getNotifications(schoolId: number, recipientId?: number): Promise<Notification[]> {
-    let query = this.client
+    let query = this._client
       .from('notifications')
       .select('*')
       .eq('school_id', schoolId);
-    
+
     if (recipientId) {
       query = query.or(`recipient_type.eq.all,recipient_ids.cs.{${recipientId}}`);
     }
-    
+
     const { data, error } = await query
       .order('created_at', { ascending: false });
-    
+
     if (error) throw error;
     return data || [];
   }
 
   async createNotification(notification: InsertNotification): Promise<Notification> {
-    const { data, error } = await this.client
+    const { data, error } = await this._client
       .from('notifications')
       .insert(notification)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   }
 
   async markNotificationAsRead(id: number, userId: number) {
-    const { error } = await this.client
+    const { error } = await this._client
       .from('notifications')
       .update({ 
         is_read: true, 
         read_at: new Date().toISOString() 
       })
       .eq('id', id);
-    
+
     if (error) throw error;
   }
 
@@ -370,15 +370,15 @@ export class SupabaseService {
       overdueResult,
       recentEventsResult
     ] = await Promise.all([
-      this.client.from('students').select('id', { count: 'exact' }).eq('school_id', schoolId),
-      this.client.from('teachers').select('id', { count: 'exact' }).eq('school_id', schoolId),
-      this.client.from('library_books').select('id', { count: 'exact' }).eq('school_id', schoolId),
-      this.client
+      this._client.from('students').select('id', { count: 'exact' }).eq('school_id', schoolId),
+      this._client.from('teachers').select('id', { count: 'exact' }).eq('school_id', schoolId),
+      this._client.from('library_books').select('id', { count: 'exact' }).eq('school_id', schoolId),
+      this._client
         .from('library_borrowed_books')
         .select('id', { count: 'exact' })
         .eq('school_id', schoolId)
         .eq('status', 'overdue'),
-      this.client
+      this._client
         .from('events')
         .select('*')
         .eq('school_id', schoolId)
@@ -401,7 +401,7 @@ export class SupabaseService {
   // ============================================================================
 
   subscribeToNotifications(schoolId: number, callback: (payload: any) => void) {
-    return this.client
+    return this._client
       .channel(`notifications-${schoolId}`)
       .on(
         'postgres_changes',
@@ -417,7 +417,7 @@ export class SupabaseService {
   }
 
   subscribeToAttendance(schoolId: number, callback: (payload: any) => void) {
-    return this.client
+    return this._client
       .channel(`attendance-${schoolId}`)
       .on(
         'postgres_changes',
@@ -437,27 +437,27 @@ export class SupabaseService {
   // ============================================================================
 
   async uploadFile(bucket: string, path: string, file: File) {
-    const { data, error } = await this.client.storage
+    const { data, error } = await this._client.storage
       .from(bucket)
       .upload(path, file);
-    
+
     if (error) throw error;
     return data;
   }
 
   getFileUrl(bucket: string, path: string) {
-    const { data } = this.client.storage
+    const { data } = this._client.storage
       .from(bucket)
       .getPublicUrl(path);
-    
+
     return data.publicUrl;
   }
 
   async deleteFile(bucket: string, path: string) {
-    const { error } = await this.client.storage
+    const { error } = await this._client.storage
       .from(bucket)
       .remove([path]);
-    
+
     if (error) throw error;
   }
 }
@@ -468,19 +468,19 @@ export const supabaseService = new SupabaseService(supabase);
 // Helper function to handle Supabase errors
 export function handleSupabaseError(error: any): never {
   console.error('Supabase Error:', error);
-  
+
   if (error.code === 'PGRST116') {
     throw new Error('Record not found');
   }
-  
+
   if (error.code === '23505') {
     throw new Error('Record already exists');
   }
-  
+
   if (error.message) {
     throw new Error(error.message);
   }
-  
+
   throw new Error('An unexpected error occurred');
 }
 
