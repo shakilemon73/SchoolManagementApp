@@ -356,6 +356,29 @@ export function useCreateInventoryItem() {
 }
 
 // ============================================================================
+// CALENDAR EVENTS HOOKS
+// ============================================================================
+
+export function useCalendarEvents(schoolId: number, month?: number, year?: number) {
+  return useQuery({
+    queryKey: ['calendar-events', schoolId, month, year],
+    queryFn: () => supabaseService.getCalendarEvents(schoolId, month, year),
+    enabled: !!schoolId,
+  });
+}
+
+export function useCreateCalendarEvent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (event: InsertEvent) => supabaseService.createCalendarEvent(event),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['calendar-events'] });
+    },
+  });
+}
+
+// ============================================================================
 // FILE UPLOAD HOOKS
 // ============================================================================
 
