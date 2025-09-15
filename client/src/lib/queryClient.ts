@@ -128,20 +128,12 @@ export async function apiRequest(
       }
     }
     
-    // Fallback to regular fetch for unhandled routes
-    const fetchOptions: RequestInit = {
-      method,
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-    };
-
-    if (body && method !== 'GET') {
-      fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
-    }
-
-    const res = await fetch(url, fetchOptions);
-    await throwIfResNotOk(res);
-    return res;
+    // For any unhandled routes, return 404 instead of falling back to Express
+    console.warn(`Unhandled Supabase route: ${resource}`);
+    return new Response(JSON.stringify({ error: 'Route not implemented in Supabase mode' }), {
+      status: 404,
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (error: any) {
     // Handle Supabase errors
     console.error('Supabase API error:', error);
@@ -159,20 +151,8 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     try {
-      // Get current Supabase session for authentication
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const headers: Record<string, string> = {};
-      
-      // Add Supabase authorization header if session exists
-      if (session?.access_token) {
-        headers.Authorization = `Bearer ${session.access_token}`;
-      }
-      
-      const res = await fetch(queryKey[0] as string, {
-        credentials: "include",
-        headers,
-      });
+      // Use apiRequest to handle all routes through Supabase
+      const res = await apiRequest(queryKey[0] as string);
 
       if (unauthorizedBehavior === "returnNull" && res.status === 401) {
         return null;
