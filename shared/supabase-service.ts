@@ -12,13 +12,21 @@ import type {
   School
 } from './consolidated-schema';
 
-// Supabase client configuration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// Supabase client configuration with fallbacks
+const supabaseUrl = (typeof import !== 'undefined' && import.meta?.env?.VITE_SUPABASE_URL) || 
+                    (typeof process !== 'undefined' && process.env?.VITE_SUPABASE_URL) ||
+                    'https://vmnmoiaxsahkdmnvrcrg.supabase.co';
 
-if (!supabaseUrl || !supabaseKey) {
-  console.warn('Supabase configuration missing. Some features may not work.');
-}
+const supabaseKey = (typeof import !== 'undefined' && import.meta?.env?.VITE_SUPABASE_ANON_KEY) || 
+                    (typeof process !== 'undefined' && process.env?.VITE_SUPABASE_ANON_KEY) ||
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtbm1vaWF4c2Foa2RtbnZyY3JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg0ODMwNjMsImV4cCI6MjA2NDA1OTA2M30.Zx6rBQjgdGge2Y3OedqECwXY3fosC-7mPPrWwdkpEb4';
+
+console.log('Supabase Service Config:', {
+  url: supabaseUrl ? 'Found' : 'Missing',
+  key: supabaseKey ? 'Found' : 'Missing',
+  urlStart: supabaseUrl.substring(0, 20) + '...',
+  keyStart: supabaseKey.substring(0, 20) + '...'
+});
 
 export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey, {
   auth: {
