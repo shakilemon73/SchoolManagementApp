@@ -10,6 +10,10 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     port: 5000,
+    hmr: {
+      clientPort: 443,
+    },
+    allowedHosts: "88ba0f1e-93fb-46d2-a7cf-708c95856d51-00-21fnaonggpc5r.spock.replit.dev",
   },
   resolve: {
     alias: {
