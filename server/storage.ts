@@ -1,145 +1,144 @@
-import { db } from "../db/index";
-import * as schema from "@shared/schema";
-import { eq } from "drizzle-orm";
-import { scrypt, randomBytes, timingSafeEqual } from "crypto";
-import { promisify } from "util";
+import { supabase } from "./supabase-client";
 import session, { type Store } from "express-session";
 
-const scryptAsync = promisify(scrypt);
-
 export interface IStorage {
-  getUser: (id: number) => Promise<schema.User | undefined>;
-  getUserByUsername: (username: string) => Promise<schema.User | undefined>;
-  getUserByEmail: (email: string) => Promise<schema.User | undefined>;
-  createUser: (user: schema.InsertUser) => Promise<schema.User>;
-  updateUserLastLogin: (id: number) => Promise<void>;
+  getUser: (id: string) => Promise<any>;
+  getUserByUsername: (username: string) => Promise<any>;
+  getUserByEmail: (email: string) => Promise<any>;
+  createUser: (user: any) => Promise<any>;
+  updateUserLastLogin: (id: string) => Promise<void>;
   sessionStore: Store;
+  
+  // School management methods
+  getUsers: () => Promise<any[]>;
+  getStudents: () => Promise<any[]>;
+  getLibraryBooks: () => Promise<any[]>;
+  createLibraryBook: (book: any) => Promise<any>;
+  getDashboardStats: () => Promise<any>;
 }
 
-export class DatabaseStorage implements IStorage {
-  sessionStore: Store;
-
-  constructor() {
-    // Use memory session store to avoid PostgreSQL connection issues with Supabase
-    this.sessionStore = new session.MemoryStore();
-  }
-
-  async getUser(id: number): Promise<schema.User | undefined> {
-    const user = await db.query.users.findFirst({
-      where: eq(schema.users.id, id)
-    });
-    return user;
-  }
-
-  async getUserByUsername(username: string): Promise<schema.User | undefined> {
-    const user = await db.query.users.findFirst({
-      where: eq(schema.users.username, username)
-    });
-    return user;
-  }
-
-  async createUser(user: schema.InsertUser): Promise<schema.User> {
-    const [newUser] = await db.insert(schema.users)
-      .values(user)
-      .returning();
-    return newUser;
-  }
-
-  async getUserByEmail(email: string): Promise<schema.User | undefined> {
-    const user = await db.query.users.findFirst({
-      where: eq(schema.users.email, email)
-    });
-    return user;
-  }
-
-  async updateUserLastLogin(id: number): Promise<void> {
-    await db.update(schema.users)
-      .set({ lastLogin: new Date() })
-      .where(eq(schema.users.id, id));
-  }
-
-  // Additional storage methods for the school management system
-  async getStudents() {
-    return await db.query.students.findMany();
-  }
-
-  async getFeeReceipts() {
-    return await db.query.feeReceipts.findMany({
-      with: {
-        items: true,
-        student: true
-      }
-    });
-  }
-}
-
-// Temporary memory storage class to bypass database issues
-class MemoryStorage implements IStorage {
-  private users: Map<number, schema.User> = new Map();
-  private userIdCounter = 1;
+export class SupabaseStorage implements IStorage {
   sessionStore: Store;
 
   constructor() {
     this.sessionStore = new session.MemoryStore();
   }
 
-  async getUser(id: number): Promise<schema.User | undefined> {
-    return this.users.get(id);
+  async getUser(id: string): Promise<any> {
+    const { data, error } = await supabase
+      .from('app_users')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) throw error;
+    return data;
   }
 
-  async getUserByUsername(username: string): Promise<schema.User | undefined> {
-    for (const user of this.users.values()) {
-      if (user.username === username) return user;
+  async getUserByUsername(username: string): Promise<any> {
+    const { data, error } = await supabase
+      .from('app_users')
+      .select('*')
+      .eq('username', username)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "not found"
+    return data;
+  }
+
+  async getUserByEmail(email: string): Promise<any> {
+    const { data, error } = await supabase
+      .from('app_users')
+      .select('*')
+      .eq('email', email)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') throw error;
+    return data;
+  }
+
+  async createUser(user: any): Promise<any> {
+    const { data, error } = await supabase
+      .from('app_users')
+      .insert(user)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  }
+
+  async updateUserLastLogin(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('app_users')
+      .update({ last_login: new Date().toISOString() })
+      .eq('id', id);
+    
+    if (error) throw error;
+  }
+
+  async getUsers(): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('app_users')
+      .select('*');
+    
+    if (error) throw error;
+    return data || [];
+  }
+
+  async getStudents(): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('students')
+      .select('*');
+    
+    if (error) throw error;
+    return data || [];
+  }
+
+  async getLibraryBooks(): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('library_books')
+      .select('*');
+    
+    if (error) throw error;
+    return data || [];
+  }
+
+  async createLibraryBook(book: any): Promise<any> {
+    const { data, error } = await supabase
+      .from('library_books')
+      .insert(book)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  }
+
+  async getDashboardStats(): Promise<any> {
+    try {
+      const [usersResult, studentsResult, booksResult] = await Promise.all([
+        supabase.from('app_users').select('id', { count: 'exact' }),
+        supabase.from('students').select('id', { count: 'exact' }),
+        supabase.from('library_books').select('id', { count: 'exact' })
+      ]);
+
+      return {
+        users: usersResult.count || 0,
+        students: studentsResult.count || 0,
+        books: booksResult.count || 0,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+      return {
+        users: 0,
+        students: 0,
+        books: 0,
+        timestamp: new Date().toISOString()
+      };
     }
-    return undefined;
-  }
-
-  async getUserByEmail(email: string): Promise<schema.User | undefined> {
-    for (const user of this.users.values()) {
-      if (user.email === email) return user;
-    }
-    return undefined;
-  }
-
-  async createUser(userData: schema.InsertUser): Promise<schema.User> {
-    const newUser: schema.User = {
-      id: this.userIdCounter++,
-      username: userData.username,
-      name: userData.name,
-      email: userData.email,
-      passwordHash: userData.passwordHash,
-      role: userData.role || 'user',
-      schoolId: userData.schoolId || null,
-      studentId: userData.studentId || null,
-      credits: userData.credits || 0,
-      isActive: userData.isActive !== false,
-      isAdmin: userData.role === 'admin',
-      lastLogin: null,
-      profilePicture: userData.profilePicture || null,
-      phoneNumber: userData.phoneNumber || null,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    this.users.set(newUser.id, newUser);
-    return newUser;
-  }
-
-  async updateUserLastLogin(id: number): Promise<void> {
-    const user = this.users.get(id);
-    if (user) {
-      user.lastLogin = new Date();
-      user.updatedAt = new Date();
-    }
-  }
-
-  async getStudents() {
-    return [];
-  }
-
-  async getFeeReceipts() {
-    return [];
   }
 }
 
-// Use database storage for production
-export const storage = new DatabaseStorage();
+export const storage = new SupabaseStorage();

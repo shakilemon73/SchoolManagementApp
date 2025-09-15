@@ -34,7 +34,7 @@ import type {
   ClassWithDetails, 
   AttendanceWithDetails,
   GradeWithDetails 
-} from "@shared/schema";
+} from "@shared/details";
 
 export default function Reports() {
   const [selectedReportType, setSelectedReportType] = useState("overview");
@@ -172,7 +172,7 @@ export default function Reports() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {Object.entries(studentsByGrade).map(([grade, count]) => (
               <div key={grade} className="text-center p-4 bg-slate-50 rounded-lg">
-                <p className="text-2xl font-bold text-slate-900">{count}</p>
+                <p className="text-2xl font-bold text-slate-900">{Number(count)}</p>
                 <p className="text-sm text-slate-600">Grade {grade}</p>
               </div>
             ))}
@@ -372,7 +372,7 @@ export default function Reports() {
               <p className="text-2xl font-bold text-red-600">
                 {grades.filter(g => g.percentage < 70).length}
               </p>
-              <p className="text-sm text-red-700">Below C (<70%)</p>
+              <p className="text-sm text-red-700">{'Below C (&lt;70%)'}</p>
             </div>
           </div>
 

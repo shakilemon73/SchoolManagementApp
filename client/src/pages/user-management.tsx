@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
+import { useSupabaseUsers } from '@/hooks/use-complete-supabase-migration';
 
 interface SupabaseUser {
   id: string;

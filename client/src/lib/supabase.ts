@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://vmnmoiaxsahkdmnvrcrg.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtbm1vaWF4c2Foa2RtbnZyY3JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg0ODMwNjMsImV4cCI6MjA2NDA1OTA2M30.Zx6rBQjgdGge2Y3OedqECwXY3fosC-7mPPrWwdkpEb4';
 
 console.log('Supabase Config Check:', {
   url: supabaseUrl ? 'Found' : 'Missing',
@@ -10,40 +10,18 @@ console.log('Supabase Config Check:', {
 
 let supabase: any;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Supabase configuration missing:', { supabaseUrl, supabaseAnonKey });
-  console.error('Make sure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set in your environment');
-  
-  // Create fallback client for development
-  supabase = {
+try {
+  supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
-      getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-      onAuthStateChange: (callback: any) => {
-        callback('INITIAL_SESSION', null);
-        return { data: { subscription: { unsubscribe: () => {} } } };
-      },
-      signInWithPassword: () => Promise.resolve({ 
-        data: { user: null, session: null }, 
-        error: new Error('Supabase not configured') 
-      }),
-      signOut: () => Promise.resolve({ error: null })
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true
     }
-  };
-  console.warn('Using fallback Supabase client - authentication will not work');
-} else {
-  try {
-    supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true
-      }
-    });
-    console.log('✓ Supabase client initialized successfully');
-  } catch (error) {
-    console.error('Failed to initialize Supabase client:', error);
-    throw error;
-  }
+  });
+  console.log('✓ Supabase client initialized successfully');
+} catch (error) {
+  console.error('Failed to initialize Supabase client:', error);
+  throw error;
 }
 
 export { supabase };

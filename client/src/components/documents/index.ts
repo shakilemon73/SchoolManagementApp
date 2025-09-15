@@ -1,11 +1,11 @@
 // Document generator exports
-export { IdCardGenerator } from './id-card-generator';
-export { ReceiptGenerator } from './receipt-generator';
-export { AdmitCardGenerator } from './admit-card-generator';
-export { MarksheetGenerator } from './marksheet-generator';
-export { SalarySlipGenerator } from './salary-slip-generator';
-export { ClassRoutineGenerator } from './class-routine-generator';
-export { CertificateGenerator } from './certificate-generator';
+import { IdCardGenerator } from './id-card-generator';
+import { ReceiptGenerator } from './receipt-generator';
+import { AdmitCardGenerator } from './admit-card-generator';
+import { MarksheetGenerator } from './marksheet-generator';
+import { SalarySlipGenerator } from './salary-slip-generator';
+import { ClassRoutineGenerator } from './class-routine-generator';
+import { CertificateGenerator } from './certificate-generator';
 
 // Template and utility exports
 export { DocumentPageTemplate } from './DocumentPageTemplate';
@@ -14,68 +14,12 @@ export { LayoutSelector } from './layout-selector';
 export { FeeTable } from './fee-table';
 
 // Preview components
-export { IdCardPreview } from './id-card-preview';
-export { BangladeshIdCardPreview } from './bangladesh-id-card-preview';
+export { default as IdCardPreview } from './id-card-preview';
+export { default as BangladeshIdCardPreview } from './bangladesh-id-card-preview';
 
 // Style and template files
-export { bangladeshIdTemplates } from './bangladesh-id-templates';
-export { BangladeshIdTemplateSelector } from './bangladesh-id-template-selector';
-export { IdCardTemplates } from './id-card-templates';
-
-// Document type mappings for routing
-export const documentGeneratorMap = {
-  // Student Documents
-  'student-id-cards': IdCardGenerator,
-  'admit-cards': AdmitCardGenerator,
-  'fee-receipts': ReceiptGenerator,
-  'marksheets': MarksheetGenerator,
-  'result-sheets': MarksheetGenerator, // Same component, different template
-  'testimonials': CertificateGenerator,
-  'transfer-certificates': CertificateGenerator,
-  'character-certificates': CertificateGenerator,
-  'leaving-certificates': CertificateGenerator,
-  'progress-reports': MarksheetGenerator,
-  'attendance-certificates': CertificateGenerator,
-  'merit-certificates': CertificateGenerator,
-
-  // Teacher Documents
-  'teacher-id-cards': IdCardGenerator,
-  'class-routines': ClassRoutineGenerator,
-  'teacher-routines': ClassRoutineGenerator,
-  'exam-papers': CertificateGenerator, // Generic document template
-  'omr-sheets': CertificateGenerator,
-  'mcq-formats': CertificateGenerator,
-  'question-formats': CertificateGenerator,
-  'lesson-plans': CertificateGenerator,
-  'assignment-sheets': CertificateGenerator,
-  'attendance-sheets': CertificateGenerator,
-  'grade-books': MarksheetGenerator,
-  'parent-letters': CertificateGenerator,
-
-  // Administrative Documents
-  'staff-id-cards': IdCardGenerator,
-  'meeting-minutes': CertificateGenerator,
-  'notice-boards': CertificateGenerator,
-  'event-invitations': CertificateGenerator,
-  'school-calendars': ClassRoutineGenerator,
-  'admission-forms': CertificateGenerator,
-  'registration-forms': CertificateGenerator,
-  'emergency-forms': CertificateGenerator,
-  'school-reports': CertificateGenerator,
-  'policy-documents': CertificateGenerator,
-
-  // Financial Documents
-  'salary-slips': SalarySlipGenerator,
-  'fee-vouchers': ReceiptGenerator,
-  'financial-reports': CertificateGenerator,
-  'budget-plans': CertificateGenerator,
-  'expense-reports': CertificateGenerator,
-  'income-statements': CertificateGenerator,
-  'tax-documents': CertificateGenerator,
-  'audit-reports': CertificateGenerator,
-  'donation-receipts': ReceiptGenerator,
-  'purchase-orders': CertificateGenerator,
-};
+export { bangladeshIDTemplates } from './bangladesh-id-templates';
+export { default as BangladeshIdTemplateSelector } from './bangladesh-id-template-selector';
 
 // Document categories for navigation
 export const documentCategories = {
@@ -103,6 +47,61 @@ export const documentCategories = {
     name: 'Teacher Documents',
     nameBn: 'শিক্ষক নথি',
     icon: 'GraduationCap',
+    color: 'green',
+    documents: [
+      'teacher-id-cards',
+      'class-routines',
+      'teacher-routines',
+      'exam-papers',
+      'omr-sheets',
+      'mcq-formats',
+      'question-formats',
+      'lesson-plans',
+      'assignment-sheets',
+      'attendance-sheets',
+      'grade-books',
+      'parent-letters',
+    ]
+  },
+  admin: {
+    name: 'Administrative Documents',
+    nameBn: 'প্রশাসনিক নথি',
+    icon: 'Building',
+    color: 'purple',
+    documents: [
+      'staff-id-cards',
+      'meeting-minutes',
+      'notice-boards',
+      'event-invitations',
+      'school-calendars',
+      'admission-forms',
+      'registration-forms',
+      'emergency-forms',
+      'school-reports',
+      'policy-documents',
+    ]
+  },
+  financial: {
+    name: 'Financial Documents',
+    nameBn: 'আর্থিক নথি',
+    icon: 'DollarSign',
+    color: 'orange',
+    documents: [
+      'salary-slips',
+      'fee-vouchers',
+      'financial-reports',
+      'budget-plans',
+      'expense-reports',
+      'income-statements',
+      'tax-documents',
+      'audit-reports',
+      'donation-receipts',
+      'purchase-orders',
+    ]
+  }
+};
+
+// Document type mappings for routing
     color: 'green',
     documents: [
       'teacher-id-cards',

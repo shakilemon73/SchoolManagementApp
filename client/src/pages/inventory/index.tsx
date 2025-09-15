@@ -16,7 +16,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
+import { useInventoryItems } from '@/hooks/use-supabase-data';
+import { useInventoryMovements, useInventoryStats, useLowStockItems, useInventoryMovement } from '@/hooks/use-complete-supabase-migration';
 import { 
   Search, 
   Package, 
@@ -117,26 +118,13 @@ export default function InventoryPage() {
     },
   });
 
-  // Real-time data queries with proper typing
-  const { data: items = [], isLoading: itemsLoading } = useQuery<any[]>({
-    queryKey: ['/api/inventory/items'],
-    refetchInterval: 30000, // Real-time updates every 30 seconds
-  });
+  // Real-time data queries directly from Supabase (No Express server needed!)
+  const { data: items = [], isLoading: itemsLoading } = useInventoryItems(1);
 
-  const { data: stockMovements = [], isLoading: movementsLoading } = useQuery<any[]>({
-    queryKey: ['/api/inventory/movements'],
-    refetchInterval: 30000,
-  });
-
-  const { data: inventoryStats = {} } = useQuery<any>({
-    queryKey: ['/api/inventory/stats'],
-    refetchInterval: 60000,
-  });
-
-  const { data: lowStockItems = [] } = useQuery<any[]>({
-    queryKey: ['/api/inventory/low-stock'],
-    refetchInterval: 60000,
-  });
+  // Complete inventory system using Supabase Edge Functions (NO EXPRESS!)
+  const { data: stockMovements = [], isLoading: movementsLoading } = useInventoryMovements();
+  const { data: inventoryStats = {} } = useInventoryStats();
+  const { data: lowStockItems = [] } = useLowStockItems();
 
   // Mutations for CRUD operations
   const addItemMutation = useMutation({

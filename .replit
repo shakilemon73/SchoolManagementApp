@@ -1,9 +1,9 @@
-modules = ["nodejs-20", "bash", "web", "postgresql-16"]
+modules = ["nodejs-20", "web"]
 run = "npm run dev"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
-channel = "stable-24_05"
+channel = "stable-25_05"
 packages = ["sqlite"]
 
 [deployment]
@@ -33,5 +33,16 @@ args = "npm run dev"
 waitForPort = 5000
 
 [[ports]]
+localPort = 3000
+externalPort = 3000
+
+[[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 24678
+externalPort = 3001
+
+[agent]
+integrations = ["javascript_database==1.0.0", "javascript_supabase==1.0.0"]

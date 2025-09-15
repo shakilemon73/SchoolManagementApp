@@ -29,35 +29,121 @@ export async function apiRequest(
     body?: any;
   }
 ): Promise<Response> {
-  // Get current Supabase session for authentication
-  const { data: { session } } = await supabase.auth.getSession();
-  
-  const baseHeaders: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-  
-  // Add Supabase authorization header if session exists
-  if (session?.access_token) {
-    baseHeaders.Authorization = `Bearer ${session.access_token}`;
-  }
-
+  // Direct Supabase operations instead of Express API calls
   const method = requestOptions?.method || 'GET';
   const body = requestOptions?.body;
 
-  const fetchOptions: RequestInit = {
-    method,
-    credentials: "include",
-    headers: baseHeaders,
-  };
+  // Parse the URL to determine the Supabase operation
+  const [, resource, ...params] = url.split('/api/')[1]?.split('/') || [];
+  const urlParams = new URLSearchParams(url.split('?')[1] || '');
+  
+  try {
+    switch (resource) {
+      case 'dashboard': {
+        if (params[0] === 'stats') {
+          const schoolId = parseInt(urlParams.get('schoolId') || '1');
+          const [studentsResult, teachersResult, booksResult] = await Promise.all([
+            supabase.from('students').select('id', { count: 'exact', head: true }).eq('school_id', schoolId),
+            supabase.from('teachers').select('id', { count: 'exact', head: true }).eq('school_id', schoolId),
+            supabase.from('library_books').select('id', { count: 'exact', head: true }).eq('school_id', schoolId)
+          ]);
 
-  if (body && method !== 'GET') {
-    fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
+          const stats = {
+            students: studentsResult.count || 0,
+            teachers: teachersResult.count || 0,
+            books: booksResult.count || 0,
+            timestamp: new Date().toISOString()
+          };
+
+          return new Response(JSON.stringify(stats), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        break;
+      }
+      
+      case 'students': {
+        const schoolId = parseInt(urlParams.get('schoolId') || '1');
+        if (method === 'GET') {
+          const { data, error } = await supabase
+            .from('students')
+            .select('*')
+            .eq('school_id', schoolId)
+            .order('name');
+
+          if (error) throw error;
+          return new Response(JSON.stringify(data || []), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+        break;
+      }
+      
+      case 'library': {
+        if (params[0] === 'books') {
+          const schoolId = parseInt(urlParams.get('schoolId') || '1');
+          if (method === 'GET') {
+            const { data, error } = await supabase
+              .from('library_books')
+              .select('*')
+              .eq('school_id', schoolId)
+              .order('title');
+
+            if (error) throw error;
+            return new Response(JSON.stringify(data || []), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          } else if (method === 'POST') {
+            const { data, error } = await supabase
+              .from('library_books')
+              .insert(body)
+              .select()
+              .single();
+
+            if (error) throw error;
+            return new Response(JSON.stringify(data), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+        }
+        break;
+      }
+      
+      case 'user': {
+        const { data: { user } } = await supabase.auth.getUser();
+        return new Response(JSON.stringify(user), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+    
+    // Fallback to regular fetch for unhandled routes
+    const fetchOptions: RequestInit = {
+      method,
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    };
+
+    if (body && method !== 'GET') {
+      fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
+    }
+
+    const res = await fetch(url, fetchOptions);
+    await throwIfResNotOk(res);
+    return res;
+  } catch (error: any) {
+    // Handle Supabase errors
+    console.error('Supabase API error:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
-
-  const res = await fetch(url, fetchOptions);
-
-  await throwIfResNotOk(res);
-  return res;
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";

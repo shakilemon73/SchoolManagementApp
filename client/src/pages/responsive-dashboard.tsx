@@ -4,6 +4,8 @@ import { AppShell } from '@/components/layout/app-shell';
 import { ResponsivePageLayout } from '@/components/layout/responsive-page-layout';
 import { useSupabaseAuth } from '@/hooks/use-supabase-auth';
 import { useMobile } from '@/hooks/use-mobile';
+import { useDashboardStats, useNotifications, useCalendarEvents } from '@/hooks/use-supabase-data';
+import { useDocumentTemplates } from '@/hooks/use-supabase-documents';
 import { 
   Card, 
   CardContent, 
@@ -92,51 +94,15 @@ export default function ResponsiveDashboard() {
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch real data from Supabase with proper schoolId
-  const { data: dashboardStats, isLoading: statsLoading, error: statsError } = useQuery<DashboardStats>({
-    queryKey: ['/api/dashboard/stats', { schoolId: 1 }],
-    queryFn: async () => {
-      const response = await fetch('/api/dashboard/stats?schoolId=1');
-      if (!response.ok) throw new Error('Failed to fetch dashboard stats');
-      return response.json();
-    },
-    enabled: !!user,
-    retry: 2,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  // Fetch real data from Supabase directly (no Express server needed)
+  const { data: dashboardStats, isLoading: statsLoading, error: statsError } = useDashboardStats(1);
+  const { data: notifications, isLoading: notificationsLoading } = useNotifications(1);
 
-  const { data: notifications, isLoading: notificationsLoading } = useQuery<NotificationItem[]>({
-    queryKey: ['/api/notifications', { schoolId: 1 }],
-    queryFn: async () => {
-      const response = await fetch('/api/notifications?schoolId=1');
-      if (!response.ok) throw new Error('Failed to fetch notifications');
-      return response.json();
-    },
-    enabled: !!user,
-    retry: 2,
-  });
+  // Document templates using direct Supabase with fallback (migrating from Express)
+  const { data: documentTemplates, isLoading: documentsLoading } = useDocumentTemplates();
 
-  const { data: documentTemplates, isLoading: documentsLoading } = useQuery<DocumentTemplate[]>({
-    queryKey: ['/api/documents/templates'],
-    queryFn: async () => {
-      const response = await fetch('/api/documents/templates');
-      if (!response.ok) throw new Error('Failed to fetch document templates');
-      return response.json();
-    },
-    enabled: !!user,
-    retry: 2,
-  });
-
-  const { data: calendarEvents, isLoading: eventsLoading } = useQuery<CalendarEvent[]>({
-    queryKey: ['/api/calendar/events', { schoolId: 1 }],
-    queryFn: async () => {
-      const response = await fetch('/api/calendar/events?schoolId=1');
-      if (!response.ok) throw new Error('Failed to fetch calendar events');
-      return response.json();
-    },
-    enabled: !!user,
-    retry: 2,
-  });
+  // Calendar events using direct Supabase
+  const { data: calendarEvents, isLoading: eventsLoading } = useCalendarEvents(1);
 
   // Format numbers for display
   const formatNumber = (num: number) => {

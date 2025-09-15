@@ -2,9 +2,9 @@ services:
   - type: web
     name: school-management-system
     env: node
-    plan: starter
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    plan: free
+    buildCommand: "npm install && node build.js"
+    startCommand: "node start.js"
     envVars:
       - key: NODE_ENV
         value: production
@@ -12,11 +12,17 @@ services:
         fromDatabase:
           name: school-db
           property: connectionString
-    domains:
-      - school-management-system.onrender.com
+      - key: SUPABASE_URL
+        value: YOUR_SUPABASE_URL
+      - key: SUPABASE_ANON_KEY
+        value: YOUR_SUPABASE_ANON_KEY
+      - key: SUPABASE_SERVICE_KEY
+        value: YOUR_SUPABASE_SERVICE_KEY
+      - key: SESSION_SECRET
+        generateValue: true
 
 databases:
   - name: school-db
     databaseName: school_management
     user: school_admin
-    plan: starter
+    plan: free

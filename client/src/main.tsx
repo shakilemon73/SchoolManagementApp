@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
+// Supabase-only mode - direct database operations
 
 // Import Material Icons
 const linkElement = document.createElement('link');

@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/pagination";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
+import { useStudents, useCreateStudent, useUpdateStudent } from '@/hooks/use-supabase-data';
 import { ProfileDetailsModal } from '@/components/profile-details-modal';
 import { Trash2, Edit, Plus, Users, CheckCircle, AlertCircle, Search, Download } from 'lucide-react';
 
@@ -73,62 +73,14 @@ export default function StudentsPage() {
     dateOfBirth: '',
   });
 
-  // Fetch students from database
-  const { data: studentsData = [], isLoading, error, refetch } = useQuery({
-    queryKey: ['/api/students'],
-    staleTime: 0,
-    gcTime: 0,
-  });
+  // Fetch students directly from Supabase (No Express server needed!)
+  const { data: studentsData = [], isLoading, error, refetch } = useStudents(1);
 
-  // Create student mutation
-  const createStudent = useMutation({
-    mutationFn: (studentData: any) => 
-      apiRequest('/api/students', {
-        method: 'POST',
-        body: JSON.stringify(studentData),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/students'] });
-      toast({
-        title: "সফল হয়েছে!",
-        description: "নতুন শিক্ষার্থী যোগ করা হয়েছে",
-      });
-      setIsAddDialogOpen(false);
-      resetForm();
-    },
-    onError: (error: any) => {
-      toast({
-        title: "ত্রুটি!",
-        description: error.message || "শিক্ষার্থী যোগ করতে সমস্যা হয়েছে",
-        variant: "destructive",
-      });
-    },
-  });
+  // Create student mutation using direct Supabase
+  const createStudent = useCreateStudent();
 
-  // Update student mutation
-  const updateStudent = useMutation({
-    mutationFn: ({ id, ...studentData }: any) => 
-      apiRequest(`/api/students/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(studentData),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/students'] });
-      toast({
-        title: "সফল হয়েছে!",
-        description: "শিক্ষার্থীর তথ্য আপডেট করা হয়েছে",
-      });
-      setEditingStudent(null);
-      resetForm();
-    },
-    onError: (error: any) => {
-      toast({
-        title: "ত্রুটি!",
-        description: error.message || "তথ্য আপডেট করতে সমস্যা হয়েছে",
-        variant: "destructive",
-      });
-    },
-  });
+  // Update student mutation using direct Supabase  
+  const updateStudent = useUpdateStudent();
 
   // Delete student mutation
   const deleteStudent = useMutation({
