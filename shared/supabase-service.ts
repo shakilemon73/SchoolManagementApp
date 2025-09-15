@@ -12,14 +12,26 @@ import type {
   School
 } from './consolidated-schema';
 
-// Supabase client configuration with fallbacks
-const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta?.env?.VITE_SUPABASE_URL) || 
-                    (typeof process !== 'undefined' && process.env?.VITE_SUPABASE_URL) ||
-                    'https://vmnmoiaxsahkdmnvrcrg.supabase.co';
+// Environment variable access that works in both browser and server
+function getEnvVar(name: string, fallback: string): string {
+  // Browser environment (Vite)
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    const value = import.meta.env[name];
+    if (value) return value;
+  }
+  
+  // Server environment (Node.js)
+  if (typeof process !== 'undefined' && process.env) {
+    const value = process.env[name];
+    if (value) return value;
+  }
+  
+  return fallback;
+}
 
-const supabaseKey = (typeof import.meta !== 'undefined' && import.meta?.env?.VITE_SUPABASE_ANON_KEY) || 
-                    (typeof process !== 'undefined' && process.env?.VITE_SUPABASE_ANON_KEY) ||
-                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtbm1vaWF4c2Foa2RtbnZyY3JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg0ODMwNjMsImV4cCI6MjA2NDA1OTA2M30.Zx6rBQjgdGge2Y3OedqECwXY3fosC-7mPPrWwdkpEb4';
+// Supabase client configuration with fallbacks
+const supabaseUrl = getEnvVar('VITE_SUPABASE_URL', 'https://vmnmoiaxsahkdmnvrcrg.supabase.co');
+const supabaseKey = getEnvVar('VITE_SUPABASE_ANON_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtbm1vaWF4c2Foa2RtbnZyY3JnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg0ODMwNjMsImV4cCI6MjA2NDA1OTA2M30.Zx6rBQjgdGge2Y3OedqECwXY3fosC-7mPPrWwdkpEb4');
 
 console.log('Supabase Service Config:', {
   url: supabaseUrl ? 'Found' : 'Missing',
